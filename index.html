@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Nerd Candy">
+    <title>Nerd Candy 🍬</title>
+
+```
+<script>
+    window.onerror = function(message, source, lineno, colno, error) {
+        const errorBox = document.getElementById('critical-error');
+        const errorMsg = document.getElementById('error-text');
+        if (errorBox && errorMsg) {
+            errorBox.style.display = 'block';
+            if (message.includes("token") || message.includes("Unexpected")) {
+                errorMsg.innerHTML = `<strong>Syntax Error:</strong> The code may have "Smart Quotes" (curvy quotes).<br><br>Technical details: ${message} at line ${lineno}`;
+            } else {
+                errorMsg.innerHTML = `<strong>System Error:</strong> ${message} at line ${lineno}`;
+            }
+        }
+    };
+</script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    try {
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        colors: {
+                            candy: '#8B5CF6',
+                            darkbg: '#0B1120', 
+                            cardbg: '#1e293b',
+                        }
+                    }
+                }
+            }
+        }
+    } catch(e) { 
+        console.log("Tailwind config skipped"); 
+    }
+</script>
+
+<style>
+    body {
+        background-color: #0f172a;
+        background-image: 
+            linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)),
+            linear-gradient(#6366f1 1px, transparent 1px), 
+            linear-gradient(#6366f1 1px, transparent 1px);
+        background-size: 40px 40px;
+        background-attachment: fixed;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }
+
+    .sidebar-btn.active {
+        background-color: #8B5CF6;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Compact card styles */
+    .news-card {
+        min-height: 200px;
+        max-height: 280px;
+    }
+    .news-card img {
+        height: 100px;
+        object-fit: cover;
+    }
+    
+    /* Sidebar styles */
+    .sidebar-open {
+        transform: translateX(0) !important;
+    }
+    
+    #sidebar-overlay.show {
+        display: block !important;
+    }
+    
+    /* Hamburger menu animation */
+    .hamburger {
+        cursor: pointer;
+        width: 24px;
+        height: 20px;
+        position: relative;
+        display: inline-block;
+    }
+    .hamburger span {
+        display: block;
+        position: absolute;
+        height: 3px;
+        width: 100%;
+        background: white;
+        border-radius: 2px;
+        opacity: 1;
+        left: 0;
+        transform: rotate(0deg);
+        transition: .25s ease-in-out;
+    }
+    .hamburger span:nth-child(1) { top: 0px; }
+    .hamburger span:nth-child(2) { top: 8px; }
+    .hamburger span:nth-child(3) { top: 16px; }
+    
+    .hamburger.open span:nth-child(1) {
+        top: 8px;
+        transform: rotate(135deg);
+    }
+    .hamburger.open span:nth-child(2) {
+        opacity: 0;
+        left: -60px;
+    }
+    .hamburger.open span:nth-child(3) {
+        top: 8px;
+        transform: rotate(-135deg);
+    }
+    
+    /* Full width on desktop when sidebar hidden */
+    @media (min-width: 768px) {
+        .category-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+    
+    /* iPad optimization */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        .category-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+    }
+</style>
+```
+
+</head>
+<body class="flex flex-col min-h-screen">
+
+```
+<div id="critical-error" style="display:none; position: fixed; inset: 0; background: #0f172a; z-index: 9999; padding: 40px; text-align: center;">
+    <div style="max-width: 600px; margin: 0 auto; background: #450a0a; border: 2px solid #f87171; padding: 20px; border-radius: 10px; color: white; font-family: monospace;">
+        <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">⚠️ APP CRASHED</h2>
+        <p id="error-text" style="font-size: 16px; line-height: 1.5; color: #fca5a5;">Unknown error</p>
+        <div style="margin-top: 20px; font-size: 14px; color: #fff;">
+            <strong>How to fix:</strong><br>
+            1. Open TextEdit > Settings<br>
+            2. Uncheck "Smart Quotes"<br>
+            3. Create a NEW file and paste the code again.
+        </div>
+    </div>
+</div>
+
+<!-- Hamburger Menu Button (Desktop/Tablet) -->
+<button id="hamburger-btn" onclick="app.toggleSidebar()" class="fixed top-4 left-4 z-50 p-3 bg-slate-800/90 backdrop-blur rounded-lg border border-white/10 hover:bg-slate-700 transition-all shadow-lg">
+    <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</button>
+
+<!-- Collapsible Sidebar -->
+<aside id="sidebar" class="fixed left-0 top-0 w-64 h-screen z-40 bg-slate-900/98 backdrop-blur border-r border-white/10 pt-4 pb-4 -translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="flex items-center gap-2 px-4 mb-6 mt-12">
+        <span class="text-2xl">🍬</span>
+        <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Nerd Candy</h1>
+    </div>
+    <div id="sidebar-nav" class="flex flex-col overflow-y-auto gap-1 px-2 flex-1">
+    </div>
+    <div class="px-2 border-t border-white/10 pt-3 mt-auto">
+        <button onclick="app.toggleSettings()" class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition text-sm">
+            <span>⚙️</span>
+            <span>Preferences</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Sidebar Overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden" onclick="app.toggleSidebar()"></div>
+
+<main class="flex-1 p-3 md:p-6 lg:px-8 pb-6 max-w-[2000px] mx-auto w-full">
+    <div class="flex justify-between items-center mb-4 pt-2 ml-16">
+        <h1 class="text-lg font-bold flex items-center gap-2">
+            <span class="md:hidden">🍬 Nerd Candy</span>
+        </h1>
+        <button onclick="app.toggleSettings()" class="p-2 bg-white/10 rounded-lg text-lg md:hidden">⚙️</button>
+    </div>
+
+    <div id="feed-container">
+        <div class="flex flex-col items-center justify-center h-96 text-gray-400">
+            <div class="text-4xl mb-4 animate-bounce">👾</div>
+            <p id="loading-text">Initializing...</p>
+        </div>
+    </div>
+</main>
+
+<div id="settings-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="app.toggleSettings()"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-slate-800 border border-white/10 rounded-2xl shadow-2xl p-6 text-gray-200">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold">Preferences</h2>
+            <button onclick="app.toggleSettings()" class="text-2xl text-gray-400 hover:text-white">&times;</button>
+        </div>
+        <div class="mb-6 bg-red-900/20 p-4 rounded-xl border border-red-500/20 flex justify-between items-center">
+            <div>
+                <div class="font-bold text-red-400">🛡️ Doom Filter</div>
+                <div class="text-xs text-gray-400 mt-1">Hide politics & tragedy</div>
+            </div>
+            <input type="checkbox" id="doom-check" checked onchange="app.saveSettings()" class="w-5 h-5 accent-red-500">
+        </div>
+        <h3 class="font-bold text-gray-400 mb-3 text-sm uppercase tracking-wider">Enabled Channels</h3>
+        <div id="settings-list" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
+    </div>
+</div>
+
+<script>
+    // CONFIGURATION DATA
+    const CONFIG = {
+        CATEGORIES: {
+            ALL: "All Joy",
+            HORROR: "Horror & Cult",
+            SCIFI: "Sci-Fi Movies",
+            BLURAY: "Physical Media",
+            CONSOLE: "PS5 & Console",
+            XBOX: "Xbox Series X/S",
+            STEAMDECK: "Steam Deck",
+            RETRO: "Retro Gaming",
+            PC: "PC Gaming",
+            GROOVE: "Groove & Portable",
+            SYNTHS: "Synths & Modular",
+            MUSICTECH: "Music Tech",
+            COMPTECH: "Gadgets"
+        },
+        ICONS: {
+            "All Joy": "🌈",
+            "Horror & Cult": "🩸",
+            "Sci-Fi Movies": "👽",
+            "Physical Media": "💿",
+            "PS5 & Console": "🎮",
+            "Xbox Series X/S": "🟢",
+            "Steam Deck": "🎯",
+            "Retro Gaming": "👾",
+            "PC Gaming": "🖥️",
+            "Groove & Portable": "🎛️",
+            "Synths & Modular": "🎹",
+            "Music Tech": "🎧",
+            "Gadgets": "💻"
+        },
+        FEEDS: [
+            // Music Hardware - Groove & Portable
+            { name: "Gearnews", url: "https://www.gearnews.com/feed", cat: "Groove & Portable" },
+            { name: "Sonic State", url: "https://sonicstate.com/news/rss", cat: "Groove & Portable" },
+            
+            // Music Hardware - Synths & Modular
+            { name: "Synthtopia", url: "https://www.synthtopia.com/feed", cat: "Synths & Modular" },
+            { name: "Synth Anatomy", url: "https://www.synthanatomy.com/feed", cat: "Synths & Modular" },
+            
+            // Music Tech - General
+            { name: "MusicRadar", url: "https://www.musicradar.com/rss", cat: "Music Tech" },
+            { name: "CDM", url: "https://cdm.link/feed/", cat: "Music Tech" },
+            { name: "Ask.Audio", url: "https://ask.audio/feed", cat: "Music Tech" },
+            
+            // Horror & Cult
+            { name: "Bloody Disgusting", url: "https://bloody-disgusting.com/feed/", cat: "Horror & Cult" },
+            { name: "Dread Central", url: "https://www.dreadcentral.com/feed/", cat: "Horror & Cult" },
+            { name: "Arrow in the Head", url: "https://www.joblo.com/category/horror/feed/", cat: "Horror & Cult" },
+            { name: "Fangoria", url: "https://www.fangoria.com/feed/", cat: "Horror & Cult" },
+            
+            // Sci-Fi Movies
+            { name: "Den of Geek", url: "https://www.denofgeek.com/feed/", cat: "Sci-Fi Movies" },
+            { name: "io9", url: "https://gizmodo.com/feed", cat: "Sci-Fi Movies" },
+            
+            // Physical Media
+            { name: "Blu-ray.com", url: "https://www.blu-ray.com/rss/news.xml", cat: "Physical Media" },
+            { name: "High-Def Digest", url: "https://www.highdefdigest.com/news.xml", cat: "Physical Media" },
+            
+            // Console Gaming - PS5
+            { name: "Push Square", url: "https://www.pushsquare.com/feeds/latest", cat: "PS5 & Console" },
+            { name: "Polygon", url: "https://www.polygon.com/rss/index.xml", cat: "PS5 & Console" },
+            { name: "Eurogamer", url: "https://www.eurogamer.net/?format=rss", cat: "PS5 & Console" },
+            
+            // Console Gaming - Xbox Series X/S
+            { name: "Pure Xbox", url: "https://www.purexbox.com/feeds/latest", cat: "Xbox Series X/S" },
+            { name: "Xbox Wire", url: "https://news.xbox.com/en-us/feed/", cat: "Xbox Series X/S" },
+            
+            // Steam Deck
+            { name: "Steam Deck HQ", url: "https://steamdeckhq.com/feed/", cat: "Steam Deck" },
+            { name: "PC Gamer Steam", url: "https://www.pcgamer.com/rss/", cat: "Steam Deck" },
+            
+            // Retro Gaming
+            { name: "Retro Gamer", url: "https://www.gamesradar.com/retro-gamer/feed/", cat: "Retro Gaming" },
+            { name: "Time Extension", url: "https://www.timeextension.com/feed", cat: "Retro Gaming" },
+            
+            // PC Gaming
+            { name: "PC Gamer", url: "https://www.pcgamer.com/rss/", cat: "PC Gaming" },
+            { name: "Rock Paper Shotgun", url: "https://www.rockpapershotgun.com/feed", cat: "PC Gaming" },
+            { name: "Kotaku", url: "https://kotaku.com/rss", cat: "PC Gaming" },
+            
+            // Tech & Gadgets
+            { name: "The Verge", url: "https://www.theverge.com/rss/index.xml", cat: "Gadgets" },
+            { name: "Ars Technica", url: "https://feeds.arstechnica.com/arstechnica/index", cat: "Gadgets" }
+        ],
+        DOOM_WORDS: [
+            "election", "policy", "parliament", "government", "senate", "congress", "trump", "biden",
+            "poilievre", "trudeau", "conservative", "liberal", "democrat", "republican", "shooting",
+            "massacre", "bombing", "terrorist", "attack", "homicide", "murder", "war", "missile",
+            "invasion", "genocide", "military", "army", "gaza", "israel", "ukraine", "russia", "crash",
+            "collision", "accident", "killed", "dead", "died", "death", "lawsuit", "sued", "nintendo",
+            "switch", "mario", "zelda", "pokemon", "anime", "manga", "waifu", "genshin"
+        ]
+    };
+
+    const app = {
+        news: [],
+        activeView: CONFIG.CATEGORIES.ALL,
+        enabledCats: {},
+        doomEnabled: true,
+        sidebarOpen: false,
+
+        init() {
+            try {
+                // Set default enabled categories
+                Object.values(CONFIG.CATEGORIES).forEach(c => {
+                    if(c !== CONFIG.CATEGORIES.ALL) this.enabledCats[c] = true;
+                });
+                
+                this.renderSidebar();
+                this.renderSettings();
+                this.fetchNews();
+            } catch(e) {
+                throw new Error("Init Failed: " + e.message);
+            }
+        },
+
+        toggleSidebar() {
+            this.sidebarOpen = !this.sidebarOpen;
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const hamburger = document.querySelector('.hamburger');
+            
+            if (this.sidebarOpen) {
+                sidebar.classList.add('sidebar-open');
+                overlay.classList.add('show');
+                hamburger.classList.add('open');
+            } else {
+                sidebar.classList.remove('sidebar-open');
+                overlay.classList.remove('show');
+                hamburger.classList.remove('open');
+            }
+        },
+
+        async fetchNews() {
+            const loadingText = document.getElementById('loading-text');
+            if(loadingText) loadingText.innerText = "Scanning frequencies...";
+
+            const promises = CONFIG.FEEDS.map(async (source) => {
+                if (!this.enabledCats[source.cat]) return [];
+                try {
+                    // Use RSS2JSON proxy to avoid CORS/Network blocks
+                    const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}`;
+                    const res = await fetch(api);
+                    const data = await res.json();
+                    if (data.status !== 'ok') return [];
+                    return data.items.map(item => ({
+                        title: item.title,
+                        summary: this.stripHtml(item.description || item.content),
+                        url: item.link,
+                        image: item.thumbnail || item.enclosure?.link,
+                        source: source.name,
+                        cat: source.cat,
+                        date: new Date(item.pubDate)
+                    }));
+                } catch (e) { 
+                    console.log("Feed Error:", source.name);
+                    return []; 
+                }
+            });
+
+            const results = await Promise.all(promises);
+            let allItems = results.flat();
+
+            // Sort by date (Newest First)
+            allItems.sort((a, b) => b.date - a.date);
+            
+            this.news = allItems;
+            this.renderFeed();
+        },
+
+        renderFeed() {
+            const container = document.getElementById('feed-container');
+            container.innerHTML = '';
+
+            // 1. Doom Filter
+            let displayItems = this.news;
+            if (this.doomEnabled) {
+                displayItems = displayItems.filter(item => {
+                    const text = (item.title + " " + item.summary).toLowerCase();
+                    return !CONFIG.DOOM_WORDS.some(bad => text.includes(bad));
+                });
+            }
+
+            if (displayItems.length === 0) {
+                container.innerHTML = '<div class="text-center mt-20 text-gray-500">No joy found. Check your filters.</div>';
+                return;
+            }
+
+            // 2. Category Filter
+            const viewsToShow = this.activeView === CONFIG.CATEGORIES.ALL 
+                ? Object.values(CONFIG.CATEGORIES).filter(c => c !== CONFIG.CATEGORIES.ALL && this.enabledCats[c])
+                : [this.activeView];
+
+            viewsToShow.forEach(category => {
+                const catItems = displayItems.filter(i => i.cat === category);
+                if (catItems.length === 0) return;
+
+                const section = document.createElement('section');
+                section.className = 'mb-8 fade-in';
+                section.innerHTML = `
+                    <div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+                        <span class="text-xl">${CONFIG.ICONS[category]}</span>
+                        <h2 class="text-xl font-bold tracking-wide text-gray-200">${category}</h2>
+                        <span class="ml-auto text-xs font-mono text-candy bg-candy/10 px-2 py-0.5 rounded border border-candy/20">${catItems.length}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 category-grid"></div>
+                `;
+
+                const grid = section.querySelector('.category-grid');
+                
+                // Show first 12 items (more visible with smaller cards)
+                catItems.slice(0, 12).forEach(item => {
+                    grid.innerHTML += this.createCardHtml(item);
+                });
+
+                // "Show More" Button
+                if(catItems.length > 12) {
+                    const moreBtnDiv = document.createElement('div');
+                    moreBtnDiv.className = 'mt-4 text-center';
+                    moreBtnDiv.innerHTML = `<button class="px-6 py-2 bg-white/5 hover:bg-candy text-gray-300 hover:text-white rounded-full font-bold transition-all border border-white/10 hover:border-candy text-sm">Show More ${category}</button>`;
+                    moreBtnDiv.onclick = (e) => {
+                        e.target.style.display = 'none';
+                        catItems.slice(12).forEach(item => {
+                            grid.innerHTML += this.createCardHtml(item);
+                        });
+                    };
+                    section.appendChild(moreBtnDiv);
+                }
+
+                container.appendChild(section);
+            });
+        },
+
+        createCardHtml(item) {
+            const dateStr = item.date.toLocaleDateString();
+            const imgHtml = item.image 
+                ? `<div class="h-24 overflow-hidden relative bg-gray-900">
+                    <img src="${item.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100" onerror="this.style.display='none';this.parentElement.style.display='none'">
+                    <div class="absolute top-1 right-1 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded border border-white/10">${item.source}</div>
+                   </div>`
+                : `<div class="p-2 border-b border-white/5 text-candy text-[10px] font-bold uppercase">${item.source}</div>`;
+
+            return `
+            <a href="${item.url}" target="_blank" class="news-card group flex flex-col bg-cardbg/80 backdrop-blur-sm rounded-lg border border-white/5 hover:border-candy/50 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-900/20">
+                ${imgHtml}
+                <div class="p-3 flex flex-col flex-grow">
+                    <h3 class="text-sm font-bold leading-snug mb-1.5 text-gray-100 group-hover:text-candy transition-colors line-clamp-2">${item.title}</h3>
+                    <p class="text-xs text-gray-400 line-clamp-2 mb-2 flex-grow">${item.summary}</p>
+                    <div class="text-[10px] text-gray-500 mt-auto flex items-center gap-1">
+                        <span class="text-candy">●</span> ${dateStr}
+                    </div>
+                </div>
+            </a>`;
+        },
+
+        renderSidebar() {
+            const nav = document.getElementById('sidebar-nav');
+            if(!nav) return;
+            nav.innerHTML = '';
+
+            this.createSidebarBtn(CONFIG.CATEGORIES.ALL, nav);
+            
+            const div = document.createElement('div');
+            div.className = "w-full h-px bg-white/20 my-2";
+            nav.appendChild(div);
+
+            Object.values(CONFIG.CATEGORIES).forEach(cat => {
+                if (cat !== CONFIG.CATEGORIES.ALL && this.enabledCats[cat]) {
+                    this.createSidebarBtn(cat, nav);
+                }
+            });
+        },
+
+        createSidebarBtn(cat, container) {
+            const btn = document.createElement('button');
+            const isActive = this.activeView === cat;
+            btn.className = `sidebar-btn w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 text-left mb-1 ${isActive ? 'active' : 'text-gray-400 hover:bg-white/10 hover:text-white'}`;
+            btn.innerHTML = `<span class="text-lg">${CONFIG.ICONS[cat]}</span><span class="text-sm whitespace-nowrap">${cat}</span>`;
+            btn.onclick = () => {
+                this.activeView = cat;
+                this.renderSidebar();
+                this.renderFeed();
+                this.toggleSidebar(); // Auto-close sidebar on selection
+                window.scrollTo({top:0, behavior:'smooth'});
+            };
+            container.appendChild(btn);
+        },
+
+        renderSettings() {
+            const list = document.getElementById('settings-list');
+            if(!list) return;
+            list.innerHTML = '';
+            Object.values(CONFIG.CATEGORIES).forEach(cat => {
+                if (cat === CONFIG.CATEGORIES.ALL) return;
+                
+                const label = document.createElement('label');
+                label.className = "flex items-center justify-between p-3 rounded-lg hover:bg-white/5 cursor-pointer border border-transparent hover:border-white/10";
+                label.innerHTML = `<span class="text-sm">${cat}</span>`;
+                
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.className = "w-4 h-4 accent-candy";
+                input.checked = this.enabledCats[cat];
+                input.onchange = (e) => {
+                    this.enabledCats[cat] = e.target.checked;
+                    this.renderSidebar();
+                    this.fetchNews();
+                };
+                
+                label.appendChild(input);
+                list.appendChild(label);
+            });
+        },
+
+        toggleSettings() {
+            const modal = document.getElementById('settings-modal');
+            if(modal) modal.classList.toggle('hidden');
+        },
+
+        saveSettings() {
+            const check = document.getElementById('doom-check');
+            if(check) this.doomEnabled = check.checked;
+            this.renderFeed();
+        },
+
+        stripHtml(html) {
+            if (!html) return "";
+            const tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        }
+    };
+
+    // LAUNCH APP
+    setTimeout(() => app.init(), 100);
+</script>
+```
+
+</body>
+</html>
